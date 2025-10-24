@@ -1,4 +1,4 @@
-# 선행특허 조사 워크플로우 (Prior Art Search Workflow)
+# KOITA 선행특허 조사 워크플로우 (Prior Art Search Workflow)
 
 AI 기반 5단계 마법사형 선행특허 조사 웹 애플리케이션입니다.
 
