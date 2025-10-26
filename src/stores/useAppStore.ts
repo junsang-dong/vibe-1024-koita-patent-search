@@ -31,6 +31,8 @@ export const useAppStore = create<AppState>()(
           searchQueries: [...state.searchQueries, query],
         })),
       
+      setSearchQueries: (queries) => set({ searchQueries: queries }),
+      
       addPriorArtItem: (item) =>
         set((state) => ({
           priorArtItems: [...state.priorArtItems, item],

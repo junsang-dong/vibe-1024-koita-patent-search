@@ -8,15 +8,13 @@ import type { PriorArtItem } from '../types';
 
 export default function Step3() {
   const navigate = useNavigate();
-  const { keywords, searchQueries, addSearchQuery, addPriorArtItem, setCurrentStep } = useAppStore();
+  const { keywords, searchQueries, addSearchQuery, setSearchQueries, addPriorArtItem, setCurrentStep } = useAppStore();
 
   const [pasteText, setPasteText] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState({
     title: '',
-    applicant: '',
     number: '',
-    year: new Date().getFullYear(),
     ipc: '',
     url: '',
   });
@@ -24,13 +22,27 @@ export default function Step3() {
   useEffect(() => {
     setCurrentStep(3);
 
-    // 검색 링크 자동 생성
-    if (keywords && searchQueries.length === 0) {
+    // 검색 링크 자동 생성 (중복 방지)
+    if (keywords) {
       const allKeywords = [...keywords.korean, ...keywords.english].slice(0, 10);
       const links = generateSearchLinks(allKeywords, keywords.ipc);
-      links.forEach((link) => addSearchQuery(link));
+      
+      // 각 데이터베이스별로 하나씩만 유지
+      const uniqueLinks = links.filter((link, index, self) => 
+        index === self.findIndex(l => l.database === link.database)
+      );
+      
+      // 기존 쿼리와 비교하여 다르면 교체
+      const existingDatabases = new Set(searchQueries.map(q => q.database));
+      const newDatabases = new Set(uniqueLinks.map(l => l.database));
+      const isDifferent = uniqueLinks.length !== searchQueries.length || 
+        !uniqueLinks.every(link => existingDatabases.has(link.database));
+      
+      if (isDifferent) {
+        setSearchQueries(uniqueLinks);
+      }
     }
-  }, [keywords, searchQueries, addSearchQuery, setCurrentStep]);
+  }, [keywords, setSearchQueries, setCurrentStep]);
 
   const handleOpenLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -57,9 +69,9 @@ export default function Step3() {
     const item: PriorArtItem = {
       id: `patent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: newItem.title,
-      applicant: newItem.applicant,
+      applicant: '', // 기본값으로 빈 문자열
       number: newItem.number,
-      year: newItem.year,
+      year: new Date().getFullYear(), // 현재 년도로 기본값 설정
       ipc: newItem.ipc.split(',').map((s) => s.trim()).filter(Boolean),
       url: newItem.url,
     };
@@ -69,9 +81,7 @@ export default function Step3() {
     // 폼 리셋
     setNewItem({
       title: '',
-      applicant: '',
       number: '',
-      year: new Date().getFullYear(),
       ipc: '',
       url: '',
     });
@@ -100,36 +110,58 @@ export default function Step3() {
               각 링크를 클릭하여 특허 데이터베이스를 검색하세요. 
               검색 결과는 아래 영역에 수동으로 추가할 수 있습니다.
             </p>
+            <p className="text-sm text-blue-600 mb-4 font-medium">
+              이번 버전 1.0에서는 Google Patents의 연관 검색 결과만 지원합니다.
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {searchQueries.map((query, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-300 rounded-lg p-4 hover:border-primary-500 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
-                        {query.database === 'kipris' && '🇰🇷 KIPRIS (한국)'}
-                        {query.database === 'uspto' && '🇺🇸 USPTO (미국)'}
-                        {query.database === 'jplatpat' && '🇯🇵 J-PlatPat (일본)'}
-                        {query.database === 'google-patents' && '🌐 Google Patents'}
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1 break-all">
-                        {query.queryString.slice(0, 80)}
-                        {query.queryString.length > 80 && '...'}
-                      </p>
+              {searchQueries.map((query, index) => {
+                const isGooglePatents = query.database === 'google-patents';
+                const isDisabled = !isGooglePatents;
+                
+                return (
+                  <div
+                    key={index}
+                    className={`border rounded-lg p-4 transition-colors ${
+                      isDisabled 
+                        ? 'border-gray-200 bg-gray-50 opacity-60' 
+                        : 'border-gray-300 hover:border-primary-500'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className={`font-semibold ${
+                          isDisabled ? 'text-gray-500' : 'text-gray-900'
+                        }`}>
+                          {query.database === 'kipris' && '🇰🇷 KIPRIS (한국)'}
+                          {query.database === 'uspto' && '🇺🇸 USPTO (미국)'}
+                          {query.database === 'jplatpat' && '🇯🇵 J-PlatPat (일본)'}
+                          {query.database === 'google-patents' && '🌐 Google Patents'}
+                          {isDisabled && ' (비활성화)'}
+                        </h3>
+                        <p className={`text-xs mt-1 break-all ${
+                          isDisabled ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {query.queryString.slice(0, 80)}
+                          {query.queryString.length > 80 && '...'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => !isDisabled && handleOpenLink(query.url)}
+                        disabled={isDisabled}
+                        className={`flex-shrink-0 ml-2 p-2 rounded-lg transition-colors ${
+                          isDisabled
+                            ? 'text-gray-400 cursor-not-allowed'
+                            : 'text-primary-600 hover:bg-primary-50'
+                        }`}
+                        title={isDisabled ? '현재 버전에서는 지원하지 않습니다' : '새 탭에서 열기'}
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleOpenLink(query.url)}
-                      className="flex-shrink-0 ml-2 p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                      title="새 탭에서 열기"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -179,8 +211,8 @@ export default function Step3() {
 
             {showAddForm && (
               <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
+                <div className="space-y-4">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       발명의 명칭 *
                     </label>
@@ -207,30 +239,6 @@ export default function Step3() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      출원인
-                    </label>
-                    <input
-                      type="text"
-                      value={newItem.applicant}
-                      onChange={(e) => setNewItem((prev) => ({ ...prev, applicant: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      출원년도
-                    </label>
-                    <input
-                      type="number"
-                      value={newItem.year}
-                      onChange={(e) => setNewItem((prev) => ({ ...prev, year: parseInt(e.target.value) || 2024 }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       IPC (쉼표로 구분)
                     </label>
                     <input
@@ -242,7 +250,7 @@ export default function Step3() {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       URL
                     </label>

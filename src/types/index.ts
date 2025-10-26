@@ -54,6 +54,7 @@ export interface AppState {
   setInventionInfo: (info: InventionInfo) => void;
   setKeywords: (keywords: Keywords) => void;
   addSearchQuery: (query: SearchQuery) => void;
+  setSearchQueries: (queries: SearchQuery[]) => void;
   addPriorArtItem: (item: PriorArtItem) => void;
   updatePriorArtItem: (id: string, updates: Partial<PriorArtItem>) => void;
   deletePriorArtItem: (id: string) => void;

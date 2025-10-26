@@ -29,7 +29,7 @@ export default function WizardNav({ currentStep }: WizardNavProps) {
       <div className="p-6">
         <Link to="/" className="flex items-center space-x-2 text-xl font-bold">
           <Home className="w-6 h-6" />
-          <span>선행특허 조사</span>
+          <span>IP-GPS 선행특허 조사</span>
         </Link>
       </div>
 

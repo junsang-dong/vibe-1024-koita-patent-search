@@ -9,6 +9,7 @@ import Step4 from './steps/Step4';
 import Step5 from './steps/Step5';
 import WizardNav from './components/WizardNav';
 import ProgressBar from './components/ProgressBar';
+import Footer from './components/Footer';
 import { useAppStore } from './stores/useAppStore';
 
 function StepLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ function StepLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <ProgressBar currentStep={currentStep} totalSteps={5} />
         <div className="flex-1 overflow-hidden">{children}</div>
+        <Footer />
       </div>
     </div>
   );

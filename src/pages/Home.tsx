@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Target, Key, Search, Filter, FileText, ArrowRight } from 'lucide-react';
+import Footer from '../components/Footer';
 
 const steps = [
   {
@@ -48,9 +49,12 @@ export default function Home() {
         {/* 헤더 */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            선행특허 조사 워크플로우
+            IP-GPS 선행특허 조사
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-lg text-gray-600 mb-2">
+            IP-GPS v1.0: AI 기반의 선행특허 조사 및 보고서 생성 서비스
+          </p>
+          <p className="text-base text-gray-500 mb-8">
             AI 기반 5단계 마법사로 체계적인 선행특허 조사를 수행하세요
           </p>
           <button
@@ -127,6 +131,7 @@ export default function Home() {
           </ul>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
