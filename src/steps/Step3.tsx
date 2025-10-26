@@ -8,7 +8,7 @@ import type { PriorArtItem } from '../types';
 
 export default function Step3() {
   const navigate = useNavigate();
-  const { keywords, searchQueries, addSearchQuery, setSearchQueries, addPriorArtItem, setCurrentStep } = useAppStore();
+  const { keywords, searchQueries, setSearchQueries, addPriorArtItem, setCurrentStep } = useAppStore();
 
   const [pasteText, setPasteText] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -34,7 +34,6 @@ export default function Step3() {
       
       // 기존 쿼리와 비교하여 다르면 교체
       const existingDatabases = new Set(searchQueries.map(q => q.database));
-      const newDatabases = new Set(uniqueLinks.map(l => l.database));
       const isDifferent = uniqueLinks.length !== searchQueries.length || 
         !uniqueLinks.every(link => existingDatabases.has(link.database));
       
