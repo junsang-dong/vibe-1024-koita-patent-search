@@ -11,3 +11,13 @@ body {
   min-height: 100vh;
   background-color: #f9fafb;
 }
+
+@media print {
+  body {
+    background: white;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}

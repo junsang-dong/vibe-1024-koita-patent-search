@@ -39,17 +39,20 @@ export interface SearchQuery {
 }
 
 // 앱 상태
+import type { ClaimMapState, ProcessStep } from './claim-map';
+
 export interface AppState {
-  currentStep: number;
+  currentStep: ProcessStep;
   apiKey: string;
   inventionInfo: InventionInfo | null;
   keywords: Keywords | null;
   searchQueries: SearchQuery[];
   priorArtItems: PriorArtItem[];
   selectedItems: string[];
+  claimMap: ClaimMapState;
   
   // Actions
-  setCurrentStep: (step: number) => void;
+  setCurrentStep: (step: ProcessStep) => void;
   setApiKey: (key: string) => void;
   setInventionInfo: (info: InventionInfo) => void;
   setKeywords: (keywords: Keywords) => void;
@@ -60,5 +63,29 @@ export interface AppState {
   deletePriorArtItem: (id: string) => void;
   toggleSelectedItem: (id: string) => void;
   setPriorArtItems: (items: PriorArtItem[]) => void;
+  setClaimMap: (claimMap: ClaimMapState) => void;
+  updateClaimMap: (updates: Partial<ClaimMapState>) => void;
+  resetClaimMap: () => void;
 }
 
+export type {
+  AnalysisStatus,
+  ClaimElement,
+  ClaimMapState,
+  ClaimMapping,
+  ClaimType,
+  Distinctiveness,
+  ElementCategory,
+  ElementImportance,
+  ElementSearchStrategy,
+  InventionElement,
+  MatchLevel,
+  PatentDocument,
+  ProcessStep,
+  ReferencePatentAnalysis,
+  RelevanceAssessment,
+  RelevanceGrade,
+  ReportSnapshot,
+  ReviewStatus,
+  RiskLevel,
+} from './claim-map';

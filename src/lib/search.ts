@@ -1,11 +1,12 @@
 import type { SearchQuery } from '../types';
 
 // 검색 도구별 딥링크 생성
-export function generateSearchLinks(keywords: string[], _ipcCodes: string[]): SearchQuery[] {
+export function generateSearchLinks(keywords: string[], ipcCodes: string[]): SearchQuery[] {
   const queries: SearchQuery[] = [];
+  const classificationQuery = ipcCodes.slice(0, 3).join(' OR ');
 
   // KIPRIS (한국)
-  const kiprisKeywords = keywords.join(' OR ');
+  const kiprisKeywords = [keywords.join(' OR '), classificationQuery].filter(Boolean).join(' AND ');
   queries.push({
     database: 'kipris',
     queryString: kiprisKeywords,
@@ -29,7 +30,7 @@ export function generateSearchLinks(keywords: string[], _ipcCodes: string[]): Se
   });
 
   // Google Patents
-  const googleQuery = keywords.slice(0, 5).join(' ');
+  const googleQuery = [keywords.slice(0, 5).join(' '), classificationQuery].filter(Boolean).join(' ');
   queries.push({
     database: 'google-patents',
     queryString: googleQuery,
@@ -153,4 +154,3 @@ export function calculateOverallScore(
 
   return Math.round(overall);
 }
-

@@ -20,7 +20,7 @@ export default function Step3() {
   });
 
   useEffect(() => {
-    setCurrentStep(3);
+    setCurrentStep('claim-map');
 
     // 검색 링크 자동 생성 (중복 방지)
     if (keywords) {
@@ -41,7 +41,7 @@ export default function Step3() {
         setSearchQueries(uniqueLinks);
       }
     }
-  }, [keywords, setSearchQueries, setCurrentStep]);
+  }, [keywords, searchQueries, setSearchQueries, setCurrentStep]);
 
   const handleOpenLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -92,12 +92,12 @@ export default function Step3() {
   return (
     <div className="flex flex-col h-full">
       <StepHeader
-        stepNumber={3}
+        step="claim-map"
         title="검색 실행"
         description="생성된 검색 링크로 특허 데이터베이스를 조회하고, 결과를 추가하세요"
         canGoBack={true}
         canGoNext={true}
-        onNext={() => navigate('/step4')}
+        onNext={() => navigate('/report')}
       />
 
       <div className="flex-1 overflow-auto p-6">
@@ -290,4 +290,3 @@ export default function Step3() {
     </div>
   );
 }
-

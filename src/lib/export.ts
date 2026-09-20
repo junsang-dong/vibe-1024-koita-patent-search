@@ -1,4 +1,4 @@
-import type { PriorArtItem, InventionInfo, Keywords } from '../types';
+import type { PriorArtItem, InventionInfo, Keywords, ClaimMapState } from '../types';
 
 // CSV 내보내기
 export function exportToCSV(items: PriorArtItem[]): string {
@@ -29,7 +29,8 @@ export function generateMarkdownReport(
   inventionInfo: InventionInfo | null,
   keywords: Keywords | null,
   items: PriorArtItem[],
-  summary?: string
+  summary?: string,
+  claimMap?: ClaimMapState,
 ): string {
   const date = new Date().toLocaleDateString('ko-KR');
   
@@ -63,10 +64,31 @@ export function generateMarkdownReport(
     }
   }
 
-  // 3. 선행특허 목록
-  md += `## 3. 발견된 선행특허 (${items.length}건)\n\n`;
+  // 3. 청구항 구성요소 맵 (레거시 내보내기 호환)
+  const referencePatent = claimMap?.referencePatents[0];
+  if (claimMap && referencePatent && referencePatent.mappings.length > 0) {
+    md += `## 3. 청구항 구성요소 맵\n\n`;
+    md += `- **기준 특허:** ${referencePatent.document.title || '-'}\n`;
+    md += `- **출원번호:** ${referencePatent.document.applicationNumber || '-'}\n`;
+    md += `- **사용자 확정:** ${referencePatent.confirmedAt ? new Date(referencePatent.confirmedAt).toLocaleString('ko-KR') : '미확정'}\n\n`;
+    md += `| 자사 발명요소 | 대응 청구항 | 일치 수준 | 위험도 | 분석 근거 |\n`;
+    md += `|---|---|---|---|---|\n`;
+    referencePatent.mappings.forEach((mapping) => {
+      const invention = claimMap.inventionElements.find((item) => item.id === mapping.inventionElementId);
+      const claimNumbers = mapping.claimElementIds
+        .map((id) => referencePatent.claimElements.find((item) => item.id === id)?.claimNumber)
+        .filter((value): value is number => value !== undefined)
+        .map((number) => `청구항 ${number}`)
+        .join(', ') || '직접 근거 없음';
+      md += `| ${invention?.id || ''} ${invention?.name || ''} | ${claimNumbers} | ${mapping.matchLevel} | ${mapping.riskLevel} | ${mapping.rationale.replace(/\|/g, '\\|')} |\n`;
+    });
+    md += `\n> 이 맵은 관련성 검토를 위한 참고자료이며 신규성·진보성·침해 여부에 대한 법률적 결론이 아닙니다.\n\n`;
+  }
+
+  // 4. 선행특허 목록
+  md += `## 4. 발견된 선행특허 (${items.length}건)\n\n`;
   
-  items
+  [...items]
     .sort((a, b) => (b.score || 0) - (a.score || 0))
     .forEach((item, index) => {
       md += `### ${index + 1}. ${item.title}\n\n`;
@@ -100,15 +122,15 @@ export function generateMarkdownReport(
       md += `\n---\n\n`;
     });
 
-  // 4. GPT 생성 요약
+  // 5. GPT 생성 요약
   if (summary) {
-    md += `## 4. AI 분석 요약\n\n`;
+    md += `## 5. AI 분석 요약\n\n`;
     md += summary;
     md += `\n\n`;
   }
 
-  // 5. 결론
-  md += `## 5. 종합 의견\n\n`;
+  // 6. 결론
+  md += `## 6. 종합 의견\n\n`;
   md += `총 ${items.length}건의 선행특허가 발견되었습니다.\n\n`;
   
   const highScoreItems = items.filter((item) => (item.score || 0) >= 70);
@@ -152,9 +174,9 @@ export function downloadMarkdown(
   keywords: Keywords | null,
   items: PriorArtItem[],
   summary?: string,
+  claimMap?: ClaimMapState,
   filename = 'prior-art-report.md'
 ) {
-  const md = generateMarkdownReport(inventionInfo, keywords, items, summary);
+  const md = generateMarkdownReport(inventionInfo, keywords, items, summary, claimMap);
   downloadFile(md, filename, 'text/markdown;charset=utf-8');
 }
-

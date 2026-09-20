@@ -1,39 +1,42 @@
+import type { ProcessStep } from '../types';
+
 interface ProgressBarProps {
-  currentStep: number;
-  totalSteps?: number;
+  currentStep: ProcessStep;
 }
 
 const steps = [
-  { id: 1, name: '목표 정의' },
-  { id: 2, name: '키워드 도출' },
-  { id: 3, name: '검색 실행' },
-  { id: 4, name: '스크리닝' },
-  { id: 5, name: '요약 리포트' },
+  { id: 'define' as const, number: 1, name: '목표 정의' },
+  { id: 'claim-map' as const, number: 2, name: '청구항 맵' },
+  { id: 'report' as const, number: 3, name: '요약 리포트' },
 ];
 
 export default function ProgressBar({ currentStep }: ProgressBarProps) {
+  const currentIndex = steps.findIndex((step) => step.id === currentStep);
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="bg-white border-b border-gray-200 px-3 py-3 print:hidden sm:px-6 sm:py-4">
       <div className="max-w-7xl mx-auto">
         <nav aria-label="Progress">
           <ol className="flex items-center justify-between">
-            {steps.map((step, stepIdx) => (
+            {steps.map((step, stepIdx) => {
+              const completed = stepIdx < currentIndex;
+              const active = step.id === currentStep;
+              return (
               <li key={step.id} className={`relative ${stepIdx !== steps.length - 1 ? 'flex-1' : ''}`}>
                 <div className="flex items-center">
                   <div className="flex flex-col items-center">
                     <div
                       className={`
-                        flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold
+                        flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold sm:h-10 sm:w-10 sm:text-sm
                         ${
-                          step.id < currentStep
+                          completed
                             ? 'border-primary-600 bg-primary-600 text-white'
-                            : step.id === currentStep
+                            : active
                             ? 'border-primary-600 bg-white text-primary-600'
                             : 'border-gray-300 bg-white text-gray-500'
                         }
                       `}
                     >
-                      {step.id < currentStep ? (
+                      {completed ? (
                         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                           <path
                             fillRule="evenodd"
@@ -42,13 +45,13 @@ export default function ProgressBar({ currentStep }: ProgressBarProps) {
                           />
                         </svg>
                       ) : (
-                        step.id
+                        step.number
                       )}
                     </div>
                     <span
                       className={`
-                        mt-2 text-xs font-medium whitespace-nowrap
-                        ${step.id <= currentStep ? 'text-primary-600' : 'text-gray-500'}
+                        mt-1.5 text-[10px] font-medium whitespace-nowrap sm:mt-2 sm:text-xs
+                        ${completed || active ? 'text-primary-600' : 'text-gray-500'}
                       `}
                     >
                       {step.name}
@@ -57,19 +60,19 @@ export default function ProgressBar({ currentStep }: ProgressBarProps) {
                   {stepIdx !== steps.length - 1 && (
                     <div
                       className={`
-                        ml-4 h-0.5 w-full
-                        ${step.id < currentStep ? 'bg-primary-600' : 'bg-gray-300'}
+                        ml-2 h-0.5 w-full sm:ml-4
+                        ${completed ? 'bg-primary-600' : 'bg-gray-300'}
                       `}
                       aria-hidden="true"
                     />
                   )}
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ol>
         </nav>
       </div>
     </div>
   );
 }
-

@@ -7,6 +7,12 @@ import { useAppStore } from '../stores/useAppStore';
 import { GPTClient, PROMPTS } from '../lib/gpt';
 import { calculateOverallScore } from '../lib/search';
 
+interface AIRankingResult {
+  id: string;
+  score: number;
+  reason: string;
+}
+
 export default function Step4() {
   const navigate = useNavigate();
   const {
@@ -30,7 +36,7 @@ export default function Step4() {
   });
 
   useEffect(() => {
-    setCurrentStep(4);
+    setCurrentStep('claim-map');
   }, [setCurrentStep]);
 
   const handleCalculateScores = () => {
@@ -98,9 +104,9 @@ export default function Step4() {
       // JSON 파싱
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
-        const rankings = JSON.parse(jsonMatch[0]);
+        const rankings = JSON.parse(jsonMatch[0]) as AIRankingResult[];
 
-        rankings.forEach((ranking: any) => {
+        rankings.forEach((ranking) => {
           const item = priorArtItems.find((p) => p.number === ranking.id);
           if (item) {
             updatePriorArtItem(item.id, {
@@ -126,12 +132,12 @@ export default function Step4() {
   return (
     <div className="flex flex-col h-full">
       <StepHeader
-        stepNumber={4}
+        step="claim-map"
         title="스크리닝 및 랭킹"
         description="수집한 선행특허를 분석하고 관련성에 따라 순위를 매기세요"
         canGoBack={true}
         canGoNext={true}
-        onNext={() => navigate('/step5')}
+        onNext={() => navigate('/report')}
       />
 
       <div className="flex-1 overflow-auto p-6">
@@ -322,4 +328,3 @@ export default function Step4() {
     </div>
   );
 }
-

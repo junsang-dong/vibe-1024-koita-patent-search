@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Target, Key, Search, Filter, FileText, ArrowRight } from 'lucide-react';
+import { Target, GitCompareArrows, FileText, ArrowRight, Files, Scale, ShieldCheck } from 'lucide-react';
 import Footer from '../components/Footer';
 
 const steps = [
@@ -8,35 +8,21 @@ const steps = [
     icon: Target,
     title: '목표 정의',
     description: '발명 정보와 조사 목적을 입력합니다',
-    color: 'blue',
+    path: '/define',
   },
   {
     id: 2,
-    icon: Key,
-    title: '키워드 도출',
-    description: 'AI가 검색 키워드와 IPC 코드를 생성합니다',
-    color: 'green',
+    icon: GitCompareArrows,
+    title: '청구항 맵',
+    description: '예시 특허 1~5건의 청구항을 원문 근거로 비교합니다',
+    path: '/claim-map',
   },
   {
     id: 3,
-    icon: Search,
-    title: '검색 실행',
-    description: '특허 데이터베이스에서 선행특허를 검색합니다',
-    color: 'purple',
-  },
-  {
-    id: 4,
-    icon: Filter,
-    title: '스크리닝',
-    description: '관련성에 따라 특허를 분석하고 순위를 매깁니다',
-    color: 'orange',
-  },
-  {
-    id: 5,
     icon: FileText,
     title: '요약 리포트',
-    description: '최종 결과를 요약하고 내보냅니다',
-    color: 'red',
+    description: '공통·차별 요소와 관련성을 요약하고 내보냅니다',
+    path: '/report',
   },
 ];
 
@@ -55,10 +41,10 @@ export default function Home() {
             IP-GPS v1.0: AI 기반의 선행특허 조사 및 보고서 생성 서비스
           </p>
           <p className="text-base text-gray-500 mb-8">
-            AI 기반 5단계 마법사로 체계적인 선행특허 조사를 수행하세요
+            사용자 제공 특허를 청구항 원문 근거로 비교하는 3단계 조사 워크플로우
           </p>
           <button
-            onClick={() => navigate('/step1')}
+            onClick={() => navigate('/define')}
             className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors shadow-lg"
           >
             조사 시작하기
@@ -67,14 +53,14 @@ export default function Home() {
         </div>
 
         {/* 단계 설명 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
           {steps.map((step) => {
             const Icon = step.icon;
             return (
               <div
                 key={step.id}
                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => navigate(`/step${step.id}`)}
+                onClick={() => navigate(step.path)}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
@@ -94,27 +80,27 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">주요 기능</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">🤖 AI 기반 분석</h3>
+              <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900"><Files className="h-5 w-5 text-indigo-600" /> 다중 문서 비교</h3>
               <p className="text-gray-600">
-                OpenAI GPT를 활용하여 키워드 도출, 특허 랭킹, 요약 리포트를 자동 생성합니다.
+                PDF 또는 청구항 텍스트 형식의 예시 특허를 최대 5건까지 한 프로젝트에서 비교합니다.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">🌐 다국적 검색</h3>
+              <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900"><ShieldCheck className="h-5 w-5 text-indigo-600" /> 원문 근거 연결</h3>
               <p className="text-gray-600">
-                KIPRIS, USPTO, J-PlatPat, Google Patents 등 주요 특허 데이터베이스를 지원합니다.
+                모든 긍정적 관련성 판단에 청구항 번호와 정확한 원문 인용을 연결합니다.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">📊 스마트 스코어링</h3>
+              <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900"><Scale className="h-5 w-5 text-indigo-600" /> 설명 가능한 관련성</h3>
               <p className="text-gray-600">
-                키워드 매칭, IPC 적합도, 연도 가중치 등을 종합하여 관련성 점수를 계산합니다.
+                필수 요소, 동작 원리, 독립항 근거와 검토 완결성을 분리해 관련성 점수를 계산합니다.
               </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">📥 다양한 내보내기</h3>
               <p className="text-gray-600">
-                CSV, JSON, Markdown 형식으로 결과를 내보내고, PDF 인쇄도 지원합니다.
+                JSON, Markdown 형식으로 결과를 내보내고 PDF 인쇄와 리포트 스냅샷을 지원합니다.
               </p>
             </div>
           </div>
@@ -124,8 +110,8 @@ export default function Home() {
         <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-yellow-900 mb-3">⚠️ 사용 전 안내사항</h3>
           <ul className="text-sm text-yellow-800 space-y-2">
-            <li>• AI 기능 사용을 위해서는 OpenAI API 키가 필요합니다 (2단계에서 입력)</li>
-            <li>• API 키는 브라우저 세션에만 저장되며, 서버로 전송되지 않습니다</li>
+            <li>• 본 워크플로우는 사용자가 제공한 문서만 비교하며 외부 특허 검색을 수행하지 않습니다</li>
+            <li>• PDF 원본은 저장하지 않고 추출 텍스트와 분석 상태만 로컬에 보관합니다</li>
             <li>• 본 도구는 특허 전문가의 검토를 대체할 수 없으며, 참고용으로만 사용하세요</li>
             <li>• 각 특허 데이터베이스의 이용약관을 준수해주세요</li>
           </ul>
@@ -135,4 +121,3 @@ export default function Home() {
     </div>
   );
 }
-

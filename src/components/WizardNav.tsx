@@ -1,44 +1,42 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Target, 
-  Key, 
-  Search, 
-  Filter, 
+  GitCompareArrows,
   FileText, 
   Home,
   Settings,
 } from 'lucide-react';
+import type { ProcessStep } from '../types';
 
 const navItems = [
-  { id: 1, icon: Target, label: '목표 정의', path: '/step1' },
-  { id: 2, icon: Key, label: '키워드 도출', path: '/step2' },
-  { id: 3, icon: Search, label: '검색 실행', path: '/step3' },
-  { id: 4, icon: Filter, label: '스크리닝', path: '/step4' },
-  { id: 5, icon: FileText, label: '요약 리포트', path: '/step5' },
+  { id: 'define' as const, icon: Target, label: '목표 정의', path: '/define' },
+  { id: 'claim-map' as const, icon: GitCompareArrows, label: '청구항 맵', path: '/claim-map' },
+  { id: 'report' as const, icon: FileText, label: '요약 리포트', path: '/report' },
 ];
 
 interface WizardNavProps {
-  currentStep: number;
+  currentStep: ProcessStep;
 }
 
 export default function WizardNav({ currentStep }: WizardNavProps) {
   const navigate = useNavigate();
+  const currentIndex = navItems.findIndex((item) => item.id === currentStep);
 
   return (
-    <aside className="w-64 bg-gray-900 text-white min-h-screen flex flex-col">
-      <div className="p-6">
+    <aside className="flex w-full shrink-0 flex-col bg-gray-900 text-white print:hidden md:min-h-screen md:w-64">
+      <div className="hidden p-6 md:block">
         <Link to="/" className="flex items-center space-x-2 text-xl font-bold">
           <Home className="w-6 h-6" />
           <span>IP-GPS 선행특허 조사</span>
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {navItems.map((item) => {
+      <nav className="flex flex-row gap-1 overflow-x-auto px-2 py-2 md:flex-1 md:flex-col md:space-y-1 md:overflow-visible md:px-4 md:py-6">
+        {navItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = item.id === currentStep;
-          const isCompleted = item.id < currentStep;
-          const isAccessible = item.id <= currentStep;
+          const isCompleted = index < currentIndex;
+          const isAccessible = index <= currentIndex;
 
           return (
             <button
@@ -46,7 +44,7 @@ export default function WizardNav({ currentStep }: WizardNavProps) {
               onClick={() => isAccessible && navigate(item.path)}
               disabled={!isAccessible}
               className={`
-                w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
+                flex min-w-max flex-1 items-center justify-center space-x-2 rounded-lg px-3 py-2.5 transition-colors md:w-full md:flex-none md:justify-start md:space-x-3 md:px-4 md:py-3
                 ${
                   isActive
                     ? 'bg-primary-600 text-white'
@@ -59,7 +57,7 @@ export default function WizardNav({ currentStep }: WizardNavProps) {
               `}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className="text-sm font-medium flex-1 text-left">{item.label}</span>
+              <span className="text-xs font-medium md:flex-1 md:text-left md:text-sm">{item.label}</span>
               {isCompleted && (
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                   <path
@@ -74,7 +72,7 @@ export default function WizardNav({ currentStep }: WizardNavProps) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-800">
+      <div className="hidden border-t border-gray-800 p-4 md:block">
         <button
           onClick={() => navigate('/settings')}
           className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
@@ -86,4 +84,3 @@ export default function WizardNav({ currentStep }: WizardNavProps) {
     </aside>
   );
 }
-

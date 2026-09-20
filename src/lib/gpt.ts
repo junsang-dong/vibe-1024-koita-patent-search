@@ -106,7 +106,7 @@ export class GPTClient {
                 fullText += token;
                 callbacks.onToken?.(token);
               }
-            } catch (e) {
+            } catch {
               // Ignore parsing errors for individual chunks
             }
           }
@@ -225,4 +225,3 @@ export async function retryWithBackoff<T>(
 
   throw lastError!;
 }
-

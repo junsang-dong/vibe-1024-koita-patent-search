@@ -16,7 +16,7 @@ export default function Step1() {
   });
 
   useEffect(() => {
-    setCurrentStep(1);
+    setCurrentStep('define');
     if (inventionInfo) {
       setFormData(inventionInfo);
     }
@@ -29,7 +29,7 @@ export default function Step1() {
   const handleNext = () => {
     if (formData.title && formData.summary) {
       setInventionInfo(formData);
-      navigate('/step2');
+      navigate('/claim-map');
     } else {
       alert('발명의 명칭과 요약은 필수 입력 항목입니다.');
     }
@@ -40,7 +40,7 @@ export default function Step1() {
   return (
     <div className="flex flex-col h-full">
       <StepHeader
-        stepNumber={1}
+        step="define"
         title="목표 정의"
         description="선행특허 조사를 위한 발명 정보를 입력해주세요"
         canGoBack={false}
@@ -128,4 +128,3 @@ export default function Step1() {
     </div>
   );
 }
-
